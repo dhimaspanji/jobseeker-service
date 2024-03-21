@@ -92,7 +92,7 @@ public class CandidateApplyController {
 		Response resp = new Response();
 		
 		try {
-			int isUpdated = candidateApplyService.createCandidateApply(candidateApplyRequest);
+			int isUpdated = candidateApplyService.updateCandidateApply(id, candidateApplyRequest);
 			
 			if (isUpdated == 1) {
 				resp.setCode(CommonLibrary.CREATED_CODE);
@@ -106,6 +106,9 @@ public class CandidateApplyController {
 			} else if (isUpdated == 4) {
 				resp.setCode(CommonLibrary.CONFLICT_CODE);
 				resp.setMessage(CommonLibrary.CONFLICT_MESSAGE + ". " + CommonLibrary.DUPLICATE_IS_NOT_ALLOWED);
+			} else {
+				resp.setCode(CommonLibrary.NOT_FOUND_CODE);
+				resp.setMessage(CommonLibrary.NOT_FOUND_MESSAGE);
 			}
 		} catch (Exception e) {
 			log.error("Error : ", e);

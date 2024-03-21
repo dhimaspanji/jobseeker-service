@@ -82,36 +82,42 @@ public class CandidateApplyService {
 		long candidateId = candidateApplyRequest.getCandidateId();
 		long vacancyId = candidateApplyRequest.getVacancyId();
 		
-		Optional<Candidate> candidate = candidateRepository.findById(candidateId);
+		Optional<CandidateApply> data = candidateApplyRepository.findById(id);
 		
-		if (candidate.isPresent()) {
-			Optional<Vacancy> vacancy = vacancyRepository.findById(vacancyId);
+		if (data.isPresent()) {
+			Optional<Candidate> candidate = candidateRepository.findById(candidateId);
 			
-			if (vacancy.isEmpty()) {
-				Optional<CandidateApply> candidateApplyData = candidateApplyRepository.findByCandidateIdAndVacancyId(candidateId, vacancyId);
+			if (candidate.isPresent()) {
+				Optional<Vacancy> vacancy = vacancyRepository.findById(vacancyId);
 				
-				if (candidateApplyData.isPresent() && candidateApplyData.get().getApplyId() != id) {
-					return 4;
-				} else {					
-					CandidateApply candidateApply = CandidateApply.builder()
-							.applyId(id)
-							.candidateId(candidateId)
-							.vacancyId(vacancyId)
-							.applyDate(candidateApplyRequest.getApplyDate())
-							.createdDate(candidateApplyData.get().getCreatedDate())
-							.build();
+				if (vacancy.isPresent()) {
+					Optional<CandidateApply> candidateApplyData = candidateApplyRepository.findByCandidateIdAndVacancyId(candidateId, vacancyId);
 					
-					candidateApplyRepository.save(candidateApply);
-					log.info("Candidate apply {} is updated", candidateApply.getApplyId());
-					
-					return 1;
+					if (candidateApplyData.isPresent() && candidateApplyData.get().getApplyId() != id) {
+						return 4;
+					} else {
+						CandidateApply candidateApply = CandidateApply.builder()
+								.applyId(id)
+								.candidateId(candidateId)
+								.vacancyId(vacancyId)
+								.applyDate(candidateApplyRequest.getApplyDate())
+								.createdDate(data.get().getCreatedDate())
+								.build();
+						
+						candidateApplyRepository.save(candidateApply);
+						log.info("Candidate apply {} is updated", candidateApply.getApplyId());
+						
+						return 1;
+					}
+				} else {
+					return 3;
 				}
 			} else {
-				return 3;
+				return 2;
 			}
-		} else {
-			return 2;
 		}
+		
+		return 0;
 	}
 	
 	public boolean deleteCandidateApply(long id) {
